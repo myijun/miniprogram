@@ -1,4 +1,4 @@
-let scope = require('./scope');
+import SCOPE_ENUMS from './scope';
 
 let scopeStore = [];
 
@@ -12,7 +12,7 @@ let _applyAuthority = {
  * 获取用户基础信息
  * @param {*} success 
  */
-_authority[scope.SCOPE_ENUMS.userInfo] = function (success) {
+_authority[SCOPE_ENUMS.userInfo] = function (success) {
   return function () {
     let that = this;
     wx.getUserInfo({
@@ -31,7 +31,7 @@ _authority[scope.SCOPE_ENUMS.userInfo] = function (success) {
  * 获取用户地理位置
  * @param {*} success 
  */
-_authority[scope.SCOPE_ENUMS.userLocation] = function (success) {
+_authority[SCOPE_ENUMS.userLocation] = function (success) {
   return function () {
     let that = this;
     wx.getLocation({
@@ -50,15 +50,15 @@ _authority[scope.SCOPE_ENUMS.userLocation] = function (success) {
  * 
  * @param {*} success 授权成功回调
  */
-_applyAuthority[scope.SCOPE_ENUMS.userLocation] = function (success) {
+_applyAuthority[SCOPE_ENUMS.userLocation] = function (success) {
   wx.authorize({
-    scope: scope.SCOPE_ENUMS.userLocation,
+    scope: SCOPE_ENUMS.userLocation,
     success: () => {
-      _authority[scope.SCOPE_ENUMS.userLocation](success);
+      _authority[SCOPE_ENUMS.userLocation](success);
     }
   });
 };
-
+//class kernel
 /**
  * 
  */
@@ -91,7 +91,7 @@ let authority = {
         for (let i of scopeStore) {
           if (res.authSetting[i.scope] && i['config'] && i['config']['success']) {
             i['config']['success'].call(app);
-          } else if (!res.authSetting[i.scope] && i.scope != scope.SCOPE_ENUMS.userInfo) {
+          } else if (!res.authSetting[i.scope] && i.scope != SCOPE_ENUMS.userInfo) {
             _applyAuthority[i.scope](i['config']['success'])
           }
         }
@@ -100,6 +100,4 @@ let authority = {
   }
 }
 
-module.exports = {
-  authority: authority
-}
+export default authority;

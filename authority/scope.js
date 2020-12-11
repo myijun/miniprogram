@@ -43,7 +43,4 @@ const scope = {
    */
   'camera': 'scope.camera',
 }
-
-module.exports = {
-  SCOPE_ENUMS: scope
-}
+export default scope;

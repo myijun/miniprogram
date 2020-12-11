@@ -1,10 +1,18 @@
 let scope = require('./scope');
+
 let scopeStore = [];
 
 let _authority = {
 
 }
-_authority[scope.scope.userInfo] = function (success) {
+let _applyAuthority = {
+
+}
+/**
+ * 获取用户基础信息
+ * @param {*} success 
+ */
+_authority[scope.SCOPE_ENUMS.userInfo] = function (success) {
   return function () {
     let that = this;
     wx.getUserInfo({
@@ -19,15 +27,46 @@ _authority[scope.scope.userInfo] = function (success) {
   }
 };
 
-_authority[scope.scope.userLocation] = function(){
-
+/**
+ * 获取用户地理位置
+ * @param {*} success 
+ */
+_authority[scope.SCOPE_ENUMS.userLocation] = function (success) {
+  return function () {
+    let that = this;
+    wx.getLocation({
+      altitude: 'altitude',
+      success: (location) => {
+        that.globalData.location = location;
+        if (that.userLocationReadyCallback) {
+          that.userLocationReadyCallback(res);
+        }
+        success && success();
+      }
+    })
+  };
+};
+/**
+ * 
+ * @param {*} success 授权成功回调
+ */
+_applyAuthority[scope.SCOPE_ENUMS.userLocation] = function (success) {
+  wx.authorize({
+    scope: scope.SCOPE_ENUMS.userLocation,
+    success: () => {
+      _authority[scope.SCOPE_ENUMS.userLocation](success);
+    }
+  });
 };
 
+/**
+ * 
+ */
 let authority = {
   /**
    * 
    */
-  want: (scope, config = {
+  bind: (scope, config = {
     "success": () => {
 
     }
@@ -43,15 +82,17 @@ let authority = {
     return wx.canIUse('button.open-type.getUserInfo');
   },
 
+  /**
+   * 项目初始化执行获取操作
+   */
   onLaunch: (app) => {
     wx.getSetting({
       success: res => {
-        console.log(res);
-        console.log(scopeStore);
         for (let i of scopeStore) {
-          console.log(res.authSetting[i.scope]);
           if (res.authSetting[i.scope] && i['config'] && i['config']['success']) {
             i['config']['success'].call(app);
+          } else if (!res.authSetting[i.scope] && i.scope != scope.SCOPE_ENUMS.userInfo) {
+            _applyAuthority[i.scope](i['config']['success'])
           }
         }
       }
@@ -59,11 +100,6 @@ let authority = {
   }
 }
 
-
-
 module.exports = {
   authority: authority
 }
-
-
-// authority.want(scope.scope.userInfo);

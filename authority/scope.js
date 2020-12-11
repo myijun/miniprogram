@@ -45,5 +45,5 @@ const scope = {
 }
 
 module.exports = {
-  scope: scope
+  SCOPE_ENUMS: scope
 }

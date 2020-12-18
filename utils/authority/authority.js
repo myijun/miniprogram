@@ -21,7 +21,7 @@ _authority[SCOPE_ENUMS.userInfo] = function (success) {
         if (that.userInfoReadyCallback) {
           that.userInfoReadyCallback(res)
         }
-        success && success();
+        success && success(res);
       }
     });
   }
@@ -33,15 +33,15 @@ _authority[SCOPE_ENUMS.userInfo] = function (success) {
  */
 _authority[SCOPE_ENUMS.userLocation] = function (success) {
   return function () {
-    let that = this;
+    let that = this;    
     wx.getLocation({
       altitude: 'altitude',
       success: (location) => {
         that.globalData.location = location;
         if (that.userLocationReadyCallback) {
-          that.userLocationReadyCallback(res);
+          that.userLocationReadyCallback(location);
         }
-        success && success();
+        success && success(location);
       }
     })
   };

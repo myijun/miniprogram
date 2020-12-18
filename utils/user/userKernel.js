@@ -12,7 +12,7 @@ class userKernel {
     wx.login({
       success: (res) => {
         data['code'] = res.code;
-        wx.$qs.postRequest(url, data).then((response) => {
+        wx.$http.postRequest(url, data).then((response) => {
           success && success(response);
         }).catch((error) => {
           xError.errorHandler(error, '请求失败');
@@ -22,6 +22,12 @@ class userKernel {
         xError.errorHandler(res, '获取临时code失败!');
       }
     })
+  }
+  /**
+   * 获取用户登录cstoken,能获取到表示当前已经在服务器登录，否则就是没有登录，进行登录操作
+   */
+  static loginCsToken() {
+    return wx.getStorageSync('cstoken');
   }
 
 

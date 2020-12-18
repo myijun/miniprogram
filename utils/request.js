@@ -1,9 +1,33 @@
+import xLog from "./xLog";
+
 /**
  * http轻量wxwx.request 封装
  */
+function suffixURI(url) {
+  url += (url.indexOf('?') > -1 ? "&" : "?");
+  url += ('_t=' + new Date().getTime());
+  return url;
+}
+
+/**
+ * 判断是否需要自动添加baseurl;
+ * @param {string} url
+ */
+function isProtocol(url) {
+  let protocol = (url.split(':')[0]).toLowerCase();
+  if (protocol == 'http' || protocol == 'https') {
+    return true;
+  }
+  return url.indexOf("//") > -1;
+}
+
 class request {
-  constructor() {
+
+  constructor(config = {}) {
     this._header = {}
+    this.config = Object.assign({
+      baseURL: ""
+    },config);
   }
   /**
    * 设置统一的异常处理
@@ -43,7 +67,13 @@ class request {
   /**
    * 网络请求
    */
-  requestAll(url, data, header, method) {
+  requestAll(url, data = {}, header, method) {
+    url = suffixURI(url);
+    let _data = {};
+    this.config.xBefore && this.config.xBefore.call(this, _data, header);
+    data = Object.assign(_data, data);
+    url = isProtocol(url) ? url : `${this.config.baseURL}${url}`;
+    xLog.log(url, data);
     return new Promise((resolve, reject) => {
       wx.request({
         url: url,
